@@ -88,7 +88,7 @@
             right: 2rem;
             transform: translateY(-50%);
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             padding: 1.5rem;
             border-radius: 12px;
@@ -97,6 +97,7 @@
             gap: 1.5rem;
             max-width: 280px;
             pointer-events: auto;
+            z-index: 100;
         }
 
         .legend .section {
@@ -315,6 +316,114 @@
             font-weight: 700;
             transition: color 0.2s ease;
         }
+
+        .mobile-toggle {
+            display: none;
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            #ui {
+                padding: 1rem;
+                display: block; /* Switch to block to control positioning manually or use grid */
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.25rem;
+                width: 100%;
+            }
+
+            .subtitle {
+                font-size: 0.8rem;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .legend {
+                display: none;
+                top: 1rem;
+                right: 1rem;
+                transform: none;
+                max-width: 200px;
+                padding: 1rem;
+                gap: 0.75rem;
+                font-size: 0.75rem;
+                z-index: 1000;
+            }
+
+            .legend .label { font-size: 0.75rem; }
+            .legend .value { font-size: 0.7rem; }
+            .legend .section { gap: 0.4rem; }
+
+            .legend.active {
+                display: flex;
+            }
+
+            .bottom-bar {
+                position: absolute;
+                bottom: 40px;
+                left: 1rem;
+                right: 1rem;
+                width: calc(100% - 2rem);
+                display: block;
+                pointer-events: none;
+            }
+
+            .controls {
+                display: none; /* Hidden by default on mobile */
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 90%;
+                max-width: 320px;
+                z-index: 2000;
+                pointer-events: auto;
+                box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            }
+
+            .controls.active {
+                display: flex;
+            }
+
+            .glass-panel {
+                width: 100%;
+                pointer-events: auto;
+                padding: 1rem;
+            }
+
+            #version-display {
+                font-size: 0.7rem;
+                bottom: 5px;
+                right: 50%;
+                transform: translateX(50%);
+                width: 100%;
+                text-align: center;
+                background: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -323,7 +432,12 @@
         <h1>Light Bicone Spectrum</h1>
         <p class="subtitle">A Relativistic Mapping of Perception</p>
 
-        <div class="legend">
+        <div class="toggle-group">
+            <button id="legendToggle" class="mobile-toggle">Show Legend</button>
+            <button id="controlsToggle" class="mobile-toggle">Show Presets</button>
+        </div>
+
+        <div class="legend" id="mainLegend">
             <div class="section">
                 <p class="section-label">Spacetime Mapping</p>
                 <div class="legend-item">
@@ -358,7 +472,7 @@
         </div>
 
         <div class="bottom-bar">
-            <div class="controls">
+            <div class="controls" id="mainControls">
                 <div class="playback-controls">
                     <button id="toggleRotation">Pause Rotation</button>
                     <button id="resetRotation">Reset View</button>
@@ -405,7 +519,7 @@
     </div>
 
     <!-- Version Display -->
-    <div id="version-display">Version 26.2.1 &nbsp;|&nbsp; Made by <a href="https://jordonhgriffin.github.io" target="_blank">JHG</a></div>
+    <div id="version-display">Version 26.2.2 &nbsp;|&nbsp; Made by <a href="https://jordonhgriffin.github.io" target="_blank">JHG</a></div>
 
     <script type="module">
         import * as THREE from 'three';
@@ -649,6 +763,53 @@
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
             isMouseMoving = true;
         });
+
+        // Touch support for mobile
+        window.addEventListener('touchstart', (event) => {
+            if (event.touches.length > 0) {
+                mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+            }
+        });
+
+        window.addEventListener('touchmove', (event) => {
+            if (event.touches.length > 0) {
+                mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
+            }
+        });
+
+        // Mobile Legend Toggle
+        const legendToggle = document.getElementById('legendToggle');
+        const mainLegend = document.getElementById('mainLegend');
+
+        if (legendToggle && mainLegend) {
+            legendToggle.addEventListener('click', () => {
+                mainLegend.classList.toggle('active');
+                legendToggle.textContent = mainLegend.classList.contains('active') ? 'Hide Legend' : 'Show Legend';
+                // Close controls if legend is shown on mobile
+                if (window.innerWidth <= 768 && mainLegend.classList.contains('active')) {
+                    mainControls.classList.remove('active');
+                    controlsToggle.textContent = 'Show Presets';
+                }
+            });
+        }
+
+        // Mobile Controls Toggle
+        const controlsToggle = document.getElementById('controlsToggle');
+        const mainControls = document.getElementById('mainControls');
+
+        if (controlsToggle && mainControls) {
+            controlsToggle.addEventListener('click', () => {
+                mainControls.classList.toggle('active');
+                controlsToggle.textContent = mainControls.classList.contains('active') ? 'Hide Presets' : 'Show Presets';
+                // Close legend if controls are shown on mobile
+                if (window.innerWidth <= 768 && mainControls.classList.contains('active')) {
+                    mainLegend.classList.remove('active');
+                    legendToggle.textContent = 'Show Legend';
+                }
+            });
+        }
 
         function performRaycast() {
             raycaster.setFromCamera(mouse, camera);
