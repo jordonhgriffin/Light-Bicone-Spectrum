@@ -7,7 +7,7 @@ A relativistic mapping of the electromagnetic spectrum into a interactive 3D geo
 
 ## 🌟 Overview
 
-The **Light Bicone Spectrum** is a real-time 3D visualization tool that maps the complexity of color and perception onto a double-conical (bicone) structure. By utilizing the vertical axis for brightness/energy, radial distance for intensity, and rotation for hue, it creates a intuitive spatial representation of how we experience light.
+The **Light Bicone Spectrum** is a real-time 3D visualization tool that maps the complexity of color and perception onto a bicone structure. By utilizing the vertical axis for brightness/energy, radial distance for intensity, and rotation for hue, it creates a intuitive spatial representation of how we experience light.
 
 ### 📐 Spacetime Mapping
 - **Vertical Axis (Y):** Represents **Brightness/Energy**. The top apex transitions into Ultraviolet (Future/Approach), while the bottom apex descends into Infrared (Past/Recession).
